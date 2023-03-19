@@ -3,6 +3,7 @@ import { join } from 'path'
 import getPort from 'get-port'
 import { configure } from 'japa'
 import sourceMapSupport from 'source-map-support'
+import execa from 'execa'
 
 process.env.NODE_ENV = 'testing'
 process.env.ADONIS_ACE_CWD = join(__dirname)
@@ -14,10 +15,21 @@ async function startHttpServer() {
   await new Ignitor(__dirname).httpServer().start()
 }
 
+async function runMigrations() {
+  await execa.node('ace', ['migration:run'], {
+    stdio: 'inherit',
+  })
+}
+async function rollbackMigrations() {
+  await execa.node('ace', ['migration:rollback'], {
+    stdio: 'inherit',
+  })
+}
 /**
  * Configure test runner
  */
 configure({
   files: ['test/**/*.spec.ts'],
-  before: [startHttpServer],
+  before: [runMigrations, startHttpServer],
+  after: [rollbackMigrations],
 })
