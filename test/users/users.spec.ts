@@ -44,7 +44,7 @@ test.group('User', (group) => {
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 409)
   })
-  test.only('it should return 409 when username is already in use', async (assert) => {
+  test('it should return 409 when username is already in use', async (assert) => {
     const { username } = await UserFactory.create()
 
     const { body } = await supertest(BASE_URL)
@@ -63,6 +63,13 @@ test.group('User', (group) => {
     assert.include(body.message, 'username')
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 409)
+  })
+
+  test('should return 422 when required data is not provided', async (assert) => {
+    const { body } = await supertest(BASE_URL).post('/users').send({}).expect(422)
+
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 
   group.beforeEach(async () => {
