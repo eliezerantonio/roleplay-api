@@ -99,11 +99,11 @@ test.group('User', (group) => {
     assert.equal(body.status, 422)
   })
 
-  test('it should update an user', async (assert) => {
+  test.only('it should update an user', async (assert) => {
     const { id, password } = await UserFactory.create()
 
     const email = 'test@example.com'
-    const avatar = 'http:gihub.com /eliezerantonio.png'
+    const avatar = 'http://gihub.com/eliezerantonio.png'
 
     const { body } = await supertest(BASE_URL)
       .put(`/users/${id}`)
@@ -127,19 +127,50 @@ test.group('User', (group) => {
       .expect(200)
 
     assert.exists(body.user, 'User Undefined')
-
     assert.equal(body.user.id, user.id)
-
     await user.refresh()
-
     assert.isTrue(await Hash.verify(user.password, password))
   })
 
-  test.only('it sould return 422 whe required daa is not provided', async (assert) => {
+  test('it sould return 422 when required daa is not provided', async (assert) => {
     const { id } = await UserFactory.create()
 
     const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
 
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+
+  test('it sould return 422 when providing an invalid email', async (assert) => {
+    const { id, password, avatar } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({
+        password,
+        avatar,
+        email: 'eliezer@',
+      })
+      .expect(422)
+
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+  test('it sould return 422 when providing an invalid password', async (assert) => {
+    const { id, email, avatar } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({ password: 'eli', avatar, email })
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
+  })
+  test('it sould return 422 when providing an invalid avatar', async (assert) => {
+    const { id, password, email } = await UserFactory.create()
+
+    const { body } = await supertest(BASE_URL)
+      .put(`/users/${id}`)
+      .send({ password, avatar: 'test', email })
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
