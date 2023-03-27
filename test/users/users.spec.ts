@@ -135,12 +135,13 @@ test.group('User', (group) => {
     assert.isTrue(await Hash.verify(user.password, password))
   })
 
-  test('it sould return 422 whe required daa is not provided', async (assert) => {
+  test.only('it sould return 422 whe required daa is not provided', async (assert) => {
     const { id } = await UserFactory.create()
 
     const { body } = await supertest(BASE_URL).put(`/users/${id}`).send({}).expect(422)
 
     assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 
   group.beforeEach(async () => {
