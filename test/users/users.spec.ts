@@ -99,7 +99,7 @@ test.group('User', (group) => {
     assert.equal(body.status, 422)
   })
 
-  test.only('it should update an user', async (assert) => {
+  test('it should update an user', async (assert) => {
     const { id, password } = await UserFactory.create()
 
     const email = 'test@example.com'
