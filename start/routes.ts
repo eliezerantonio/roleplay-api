@@ -27,3 +27,4 @@ Route.get('/', async () => {
 Route.post('/users', 'UsersController.store')
 Route.put('/users/:id', 'UsersController.update')
 Route.post('/forgot-password', 'PasswordController.forgotPassword')
+Route.post('/reset-password', 'PasswordController.resetPassword')
