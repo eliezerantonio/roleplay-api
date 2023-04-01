@@ -1,5 +1,6 @@
 import Mail from '@ioc:Adonis/Addons/Mail'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import TokenExpiredException from 'App/Exceptions/TokenExpiredException'
 import User from 'App/Models/User'
 import ForgotPasswordValidator from 'App/Validators/ForgotPasswordValidator'
 import ResetPasswordValidator from 'App/Validators/ResetPasswordValidator'
@@ -43,6 +44,12 @@ export default class PasswordController {
       })
       .preload('tokens')
       .firstOrFail()
+
+    const tokenAge = Math.abs(userByToken.tokens[0].createdAt.diffNow('hours').hours)
+
+    if (tokenAge > 2) {
+      throw new TokenExpiredException()
+    }
 
     userByToken.password = password
     await userByToken.save()
