@@ -73,17 +73,35 @@ test.group('Password', (group) => {
     assert.isTrue(checkPassword)
   })
 
-  test.only('t should return 422 when required data is no provided or data is invalid', async (assert) => {
+  test('it should return 422 when required data is no provided or data is invalid', async (assert) => {
     const { body } = await supertest(BASE_URL).post('/reset-password').send({}).expect(422)
 
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
   })
-  test.only('t should return 422 when required data is no provided or data is invalid', async (assert) => {
+  test('it should return 422 when required data is no provided or data is invalid', async (assert) => {
     const { body } = await supertest(BASE_URL).post('/reset-password').send({}).expect(422)
 
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
+  })
+  test.only('it should return 404 when rusing the same token twice', async (assert) => {
+    const user = await UserFactory.create()
+
+    const { token } = await user.related('tokens').create({ token: 'token' })
+
+    await supertest(BASE_URL)
+      .post('/reset-password')
+      .send({ token, password: '123456' })
+      .expect(204)
+
+    const { body } = await supertest(BASE_URL)
+      .post('/reset-password')
+      .send({ token, password: '123456' })
+      .expect(404)
+
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
   })
 
   group.beforeEach(async () => {
