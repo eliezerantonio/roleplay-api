@@ -53,6 +53,15 @@
     picomatch "^2.3.1"
     slash "^3.0.0"
 
+"@adonisjs/auth@^8.2.3":
+  version "8.2.3"
+  resolved "https://registry.yarnpkg.com/@adonisjs/auth/-/auth-8.2.3.tgz#30ea07216589cd0865a10d22749490ff0b122308"
+  integrity sha512-js9e8AHEsNC/8MGvho6MgL+uXr8SlhTg9MJJDWQBBiqsKkT7+H7NMP/pLbuSzYaaf40t2u/OXfq6wXuIC5ZYvw==
+  dependencies:
+    "@poppinss/hooks" "^5.0.3"
+    "@poppinss/utils" "^5.0.0"
+    luxon "^3.0.4"
+
 "@adonisjs/bodyparser@^8.1.7":
   version "8.1.7"
   resolved "https://registry.npmjs.org/@adonisjs/bodyparser/-/bodyparser-8.1.7.tgz"
@@ -511,6 +520,11 @@
   version "3.0.5"
   resolved "https://registry.npmjs.org/@poppinss/hooks/-/hooks-3.0.5.tgz"
   integrity sha512-kazQstmIPq4n7/qjk5ms9SEiXtLEJ+EMZXxyXTupTVq7URFIUeULgXFv/F3vheLPCSzfByu/L2iO7M457RjszQ==
+
+"@poppinss/hooks@^5.0.3":
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/@poppinss/hooks/-/hooks-5.0.3.tgz#7c911f62d303ba79011546d8953616dea36a602d"
+  integrity sha512-M5a151VUl+RslVP5qwDW+u+0VmzKt5Nfplzdx2nrtXol3yVlLN3u2Jp6UADESid3DDI7IRHmFrA3sQusey3eUA==
 
 "@poppinss/inspect@^1.0.1":
   version "1.0.1"
@@ -3401,7 +3415,7 @@ luxon@^1.27.0:
   resolved "https://registry.npmjs.org/luxon/-/luxon-1.28.1.tgz"
   integrity sha512-gYHAa180mKrNIUJCbwpmD0aTu9kV0dREDrwNnuyFAsO1Wt0EVYSZelPnJlbj9HplzXX/YWXHFTL45kvZ53M0pw==
 
-luxon@^3.0.3, luxon@^3.3.0:
+luxon@^3.0.3, luxon@^3.0.4, luxon@^3.3.0:
   version "3.3.0"
   resolved "https://registry.npmjs.org/luxon/-/luxon-3.3.0.tgz"
   integrity sha512-An0UCfG/rSiqtAIiBPO0Y9/zAnHUZxAMiCpTd5h2smgsj7GGmcenvrvww2cqNA8/4A5ZrD1gJpHN2mIHZQF+Mg==
