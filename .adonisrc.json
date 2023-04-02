@@ -23,7 +23,8 @@
     "@adonisjs/core",
     "@adonisjs/lucid",
     "@adonisjs/mail",
-    "@adonisjs/view"
+    "@adonisjs/view",
+    "@adonisjs/auth"
   ],
   "aceProviders": [
     "@adonisjs/repl"
