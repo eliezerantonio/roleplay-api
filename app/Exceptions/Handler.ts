@@ -37,7 +37,7 @@ export default class ExceptionHandler extends HttpExceptionHandler {
         message: 'resource not found',
         status: 404,
       })
-    if (error.code === 'E_INVALID_AUTH_UID')
+    if (['E_INVALID_AUTH_UID', 'E_INVALID_AUTH_PASSWORD'].includes(error.code || ''))
       return ctx.response.status(error.status).send({
         code: 'BAD_REQUEST',
         message: 'invalid credentials',
