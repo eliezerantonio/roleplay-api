@@ -29,7 +29,9 @@ test.group('Group', (group) => {
   })
 
   test.only('it should return 422 when required data is not provided', async (assert) => {
-    const body = await supertest(BASE_URL).post('/groups').send({}).expect(422)
+    const { body } = await supertest(BASE_URL).post('/groups').send({}).expect(422)
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 
   group.beforeEach(async () => {
