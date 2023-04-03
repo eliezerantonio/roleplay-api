@@ -33,4 +33,4 @@ Route.post('/reset-password', 'PasswordController.resetPassword')
 Route.post('/sessions', 'SessionsController.store')
 Route.delete('/sessions', 'SessionsController.destroy')
 
-Route.post('/groups', 'GroupsController.store')
+Route.post('/groups', 'GroupsController.store').middleware('auth')
