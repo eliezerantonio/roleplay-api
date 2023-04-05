@@ -24,7 +24,7 @@ test.group('Group Request', (group) => {
     assert.equal(body.groupRequest.status, 'PENDING')
   })
 
-  test.only('it should 409 when group request already exists', async (assert) => {
+  test('it should 409 when group request already exists', async (assert) => {
     const { id } = await UserFactory.create()
     const group = await GroupFactory.merge({ master: id }).create()
 
@@ -41,6 +41,33 @@ test.group('Group Request', (group) => {
 
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 409)
+  })
+
+  test.only('it should return 422 when ur is already in he group', async (assert) => {
+    const groupPayload = {
+      name: 'test',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronic: 'test',
+      master: user.id,
+    }
+
+    //Master is added o group
+
+    const response = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${token}`)
+      .send(groupPayload)
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${response.body.group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+      .expect(422)
+
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 
   group.before(async () => {
