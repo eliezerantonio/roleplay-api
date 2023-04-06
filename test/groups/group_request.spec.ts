@@ -97,7 +97,7 @@ test.group('Group Request', (group) => {
     assert.equal(body.groupRequests[0].group.master, master.id)
   })
 
-  test.only('it should retunr an empty list wehn mast has no group requests', async (assert) => {
+  test('it should retunr an empty list wehn mast has no group requests', async (assert) => {
     const master = await UserFactory.create()
 
     const group = await GroupFactory.merge({ master: master.id }).create()
@@ -113,6 +113,22 @@ test.group('Group Request', (group) => {
 
     assert.exists(body.groupRequests, 'GroupRequests undefined')
     assert.equal(body.groupRequests.length, 0)
+  })
+
+  test('it should return 422 when master is not provided', async (assert) => {
+    const master = await UserFactory.create()
+
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+
+    const { body } = await supertest(BASE_URL).get(`/groups/${group.id}/requests`).expect(422)
+
+    assert.exists(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 422)
   })
 
   group.before(async () => {
