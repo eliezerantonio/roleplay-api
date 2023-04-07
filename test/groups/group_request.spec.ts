@@ -98,7 +98,7 @@ test.group('Group Request', (group) => {
     assert.equal(body.groupRequests[0].group.master, master.id)
   })
 
-  test('it should retunr an empty list wehn mast has no group requests', async (assert) => {
+  test('it should return an empty list wehn mast has no group requests', async (assert) => {
     const master = await UserFactory.create()
 
     const group = await GroupFactory.merge({ master: master.id }).create()
@@ -189,7 +189,7 @@ test.group('Group Request', (group) => {
     assert.equal(response.body.status, 404)
   })
 
-  test.only('it should reject a agroup request', async (assert) => {
+  test('it should reject a agroup request', async (assert) => {
     const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: master.id }).create()
 
@@ -205,6 +205,40 @@ test.group('Group Request', (group) => {
     const groupRequest = await GroupRequest.find(body.groupRequest.id)
 
     assert.isNull(groupRequest)
+  })
+
+  test('it should return 404 when providing an unexisting group for rejection', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+
+    const response = await supertest(BASE_URL)
+      .delete(`/groups/123/requests/${body.groupRequest.id}`)
+      .expect(404)
+
+    assert.equal(response.body.code, 'BAD_REQUEST')
+    assert.equal(response.body.status, 404)
+  })
+
+  test('it should return 404 when providing an unexisting group request for rejection', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+
+    const response = await supertest(BASE_URL)
+      .delete(`/groups/${group.id}/requests/123`)
+      .expect(404)
+
+    assert.equal(response.body.code, 'BAD_REQUEST')
+    assert.equal(response.body.status, 404)
   })
 
   group.before(async () => {
