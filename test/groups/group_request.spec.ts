@@ -85,6 +85,7 @@ test.group('Group Request', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .get(`/groups/${group.id}/requests?master=${master.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     assert.exists(body.groupRequests, 'GroupRequests undefined')
@@ -110,6 +111,7 @@ test.group('Group Request', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .get(`/groups/${group.id}/requests?master=${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     assert.exists(body.groupRequests, 'GroupRequests undefined')
@@ -126,7 +128,10 @@ test.group('Group Request', (group) => {
       .set('Authorization', `Bearer ${token}`)
       .send({})
 
-    const { body } = await supertest(BASE_URL).get(`/groups/${group.id}/requests`).expect(422)
+    const { body } = await supertest(BASE_URL)
+      .get(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(422)
 
     assert.exists(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 422)
@@ -134,7 +139,7 @@ test.group('Group Request', (group) => {
 
   test('Should accepted a group request', async (assert) => {
     const master = await UserFactory.create()
-    const group = await GroupFactory.merge({ master: master.id }).create()
+    const group = await GroupFactory.merge({ master: user.id }).create()
 
     const { body } = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests`)
@@ -143,6 +148,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     assert.exists(response.body.groupRequest, 'GroupRequest undefined')
@@ -167,6 +173,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .post(`/groups/123/requests/${body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
@@ -174,8 +181,7 @@ test.group('Group Request', (group) => {
   })
 
   test('it should return 404 when providing an unexiting group request', async (assert) => {
-    const master = await UserFactory.create()
-    const group = await GroupFactory.merge({ master: master.id }).create()
+    const group = await GroupFactory.merge({ master: user.id }).create()
 
     await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests`)
@@ -183,6 +189,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests/123/accept`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
@@ -191,7 +198,7 @@ test.group('Group Request', (group) => {
 
   test('it should reject a agroup request', async (assert) => {
     const master = await UserFactory.create()
-    const group = await GroupFactory.merge({ master: master.id }).create()
+    const group = await GroupFactory.merge({ master: user.id }).create()
 
     const { body } = await supertest(BASE_URL)
       .post(`/groups/${group.id}/requests`)
@@ -200,6 +207,7 @@ test.group('Group Request', (group) => {
 
     await supertest(BASE_URL)
       .delete(`/groups/${group.id}/requests/${body.groupRequest.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
 
     const groupRequest = await GroupRequest.find(body.groupRequest.id)
@@ -218,6 +226,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .delete(`/groups/123/requests/${body.groupRequest.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
@@ -235,6 +244,7 @@ test.group('Group Request', (group) => {
 
     const response = await supertest(BASE_URL)
       .delete(`/groups/${group.id}/requests/123`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
