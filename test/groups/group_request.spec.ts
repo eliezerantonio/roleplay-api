@@ -1,4 +1,5 @@
 import Database from '@ioc:Adonis/Lucid/Database'
+import GroupRequest from 'App/Models/GroupRequest'
 import User from 'App/Models/User'
 import { GroupFactory, UserFactory } from 'Database/factories'
 import test from 'japa'
@@ -186,6 +187,24 @@ test.group('Group Request', (group) => {
 
     assert.equal(response.body.code, 'BAD_REQUEST')
     assert.equal(response.body.status, 404)
+  })
+
+  test.only('it should reject a agroup request', async (assert) => {
+    const master = await UserFactory.create()
+    const group = await GroupFactory.merge({ master: master.id }).create()
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+
+    await supertest(BASE_URL)
+      .delete(`/groups/${group.id}/requests/${body.groupRequest.id}`)
+      .expect(200)
+
+    const groupRequest = await GroupRequest.find(body.groupRequest.id)
+
+    assert.isNull(groupRequest)
   })
 
   group.before(async () => {
