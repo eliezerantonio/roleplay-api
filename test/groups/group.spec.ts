@@ -75,13 +75,41 @@ test.group('Group', (group) => {
     assert.equal(body.group.chronic, payload.chronic)
   })
 
-  test.only('it should return 404 when providing an unexting group for update', async (assert) => {
+  test('it should return 404 when providing an unexting group for update', async (assert) => {
     const response = await supertest(BASE_URL).patch('/groups/1').send({}).expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
     assert.equal(response.body.status, 404)
   })
 
+  test.only('it should remove user fom group', async (assert) => {
+    const group = await GroupFactory.merge({ master: user.id }).create()
+
+    const plainPassword = 'test'
+
+    const newUser = await UserFactory.merge({ password: plainPassword }).create()
+
+    const response = await supertest(BASE_URL)
+      .post('/sessions')
+      .send({ email: newUser.email, password: plainPassword })
+
+    const playerToken = response.body.token.token
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests`)
+      .set('Authorization', `Bearer ${playerToken}`)
+      .send({})
+
+    await supertest(BASE_URL)
+      .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
+      .set('Authorization', `Bearer ${token}`)
+
+    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${newUser.id}`).expect(200)
+
+    await group.load('players')
+
+    assert.isEmpty(group.players)
+  })
   group.before(async () => {
     const plainPassword = 'test'
     const newUser = await UserFactory.merge({ password: plainPassword }).create()
