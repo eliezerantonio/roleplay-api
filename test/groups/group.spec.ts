@@ -50,7 +50,7 @@ test.group('Group', (group) => {
     assert.equal(body.status, 422)
   })
 
-  test.only('it should update a group', async (assert) => {
+  test('it should update a group', async (assert) => {
     const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: master.id }).create()
 
@@ -74,6 +74,14 @@ test.group('Group', (group) => {
     assert.equal(body.group.location, payload.location)
     assert.equal(body.group.chronic, payload.chronic)
   })
+
+  test.only('it should return 404 when providing an unexting group for update', async (assert) => {
+    const response = await supertest(BASE_URL).patch('/groups/1').send({}).expect(404)
+
+    assert.equal(response.body.code, 'BAD_REQUEST')
+    assert.equal(response.body.status, 404)
+  })
+
   group.before(async () => {
     const plainPassword = 'test'
     const newUser = await UserFactory.merge({ password: plainPassword }).create()
