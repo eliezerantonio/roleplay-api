@@ -138,7 +138,6 @@ test.group('Group Request', (group) => {
   })
 
   test('Should accepted a group request', async (assert) => {
-    const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: user.id }).create()
 
     const { body } = await supertest(BASE_URL)
@@ -197,7 +196,6 @@ test.group('Group Request', (group) => {
   })
 
   test('it should reject a agroup request', async (assert) => {
-    const master = await UserFactory.create()
     const group = await GroupFactory.merge({ master: user.id }).create()
 
     const { body } = await supertest(BASE_URL)
