@@ -7,7 +7,13 @@ export default class GroupsUsers extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.primary(['user_id', 'group_id'])
       table.integer('user_id').unsigned().references('id').inTable('users').notNullable()
-      table.integer('group_id').unsigned().references('id').inTable('groups').notNullable()
+      table
+        .integer('group_id')
+        .unsigned()
+        .references('id')
+        .inTable('groups')
+        .notNullable()
+        .onDelete('CASCADE')
 
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
