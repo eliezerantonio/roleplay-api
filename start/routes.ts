@@ -34,10 +34,12 @@ Route.post('/sessions', 'SessionsController.store')
 Route.delete('/sessions', 'SessionsController.destroy')
 
 Route.post('/groups', 'GroupsController.store').middleware('auth')
-Route.delete('/groups/:id', 'GroupsController.destroy')
-Route.patch('/groups/:id', 'GroupsController.update') //.middleware('auth')
+Route.delete('/groups/:id', 'GroupsController.destroy').middleware('auth')
+Route.patch('/groups/:id', 'GroupsController.update').middleware('auth')
 
-Route.delete('/groups/:groupId/players/:playerId', 'GroupsController.removePlayer') //.middleware('auth')
+Route.delete('/groups/:groupId/players/:playerId', 'GroupsController.removePlayer').middleware(
+  'auth'
+)
 
 Route.get('/groups/:groupId/requests', 'GroupRequestsController.index')
 Route.post('/groups/:groupId/requests', 'GroupRequestsController.store').middleware('auth')
