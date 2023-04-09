@@ -1,7 +1,9 @@
 import Database from '@ioc:Adonis/Lucid/Database'
+import Group from 'App/Models/Group'
 import User from 'App/Models/User'
 import { GroupFactory, UserFactory } from 'Database/factories'
 import test from 'japa'
+import { Assert } from 'japa/build/src/Assert'
 import supertest from 'supertest'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
@@ -82,7 +84,7 @@ test.group('Group', (group) => {
     assert.equal(response.body.status, 404)
   })
 
-  test.only('it should remove user fom group', async (assert) => {
+  test('it should remove user fom group', async (assert) => {
     const group = await GroupFactory.merge({ master: user.id }).create()
 
     const plainPassword = 'test'
@@ -110,6 +112,68 @@ test.group('Group', (group) => {
 
     assert.isEmpty(group.players)
   })
+
+  test('it should not remove the master of the group', async (assert) => {
+    const groupPayload = {
+      name: 'test',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronic: 'test',
+      master: user.id,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .post(`/groups`)
+      .set('Authorization', `Bearer ${token}`)
+      .send(groupPayload)
+
+    const group = body.group
+
+    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${user.id}`).expect(400)
+
+    const groupModel = await Group.findOrFail(group.id)
+
+    await groupModel.load('players')
+
+    assert.isNotEmpty(groupModel.players)
+  })
+
+  test('it should remove a group', async (assert) => {
+    const groupPayload = {
+      name: 'test',
+      description: 'test',
+      schedule: 'test',
+      location: 'test',
+      chronic: 'test',
+      master: user.id,
+    }
+
+    const { body } = await supertest(BASE_URL)
+      .post('/groups')
+      .set('Authorization', `Bearer ${token}`)
+      .send(groupPayload)
+
+    const group = body.group
+
+    await supertest(BASE_URL).delete(`/groups/${group.id}`).send({}).expect(200)
+
+    const emptyGroup = await Database.query().from('groups').where('id', group.id)
+
+    assert.isEmpty(emptyGroup)
+
+    const players = await Database.query().from('groups_users')
+
+    assert.isEmpty(players)
+  })
+
+  test('it sould return 40 when providing an unexisting group for deletion', async (assert) => {
+    const { body } = await supertest(BASE_URL).delete('/groups/1').send({}).expect(404)
+
+    assert.equal(body.code, 'BAD_REQUEST')
+    assert.equal(body.status, 404)
+  })
+
   group.before(async () => {
     const plainPassword = 'test'
     const newUser = await UserFactory.merge({ password: plainPassword }).create()
