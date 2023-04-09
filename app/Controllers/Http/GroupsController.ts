@@ -14,21 +14,23 @@ export default class GroupsController {
     return response.created({ group })
   }
 
-  public async update({ request, response }: HttpContextContract) {
+  public async update({ request, response, bouncer }: HttpContextContract) {
     const id = request.param('id')
     const payload = request.all()
 
     const group = await Group.findOrFail(id)
+    await bouncer.authorize('updateGroup', group)
     const updatedGroup = await group.merge(payload).save()
 
     response.ok({ group: updatedGroup })
   }
 
-  public async removePlayer({ request, response }: HttpContextContract) {
+  public async removePlayer({ request, response, bouncer }: HttpContextContract) {
     const groupId = request.param('groupId') as number
     const playerId = +request.param('playerId')
 
     const group = await Group.findOrFail(groupId)
+    await bouncer.authorize('deleteGroup', group)
 
     if (playerId === group.master) {
       throw new BadRequestException('cannot remove master form group', 400)

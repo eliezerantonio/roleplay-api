@@ -52,8 +52,7 @@ test.group('Group', (group) => {
   })
 
   test('it should update a group', async (assert) => {
-    const master = await UserFactory.create()
-    const group = await GroupFactory.merge({ master: master.id }).create()
+    const group = await GroupFactory.merge({ master: user.id }).create()
 
     const payload = {
       name: 'test',
@@ -208,10 +207,7 @@ test.group('Group', (group) => {
   })
 
   group.after(async () => {
-    await supertest(BASE_URL)
-      .delete('/sessions')
-      .set('Authorization', `Bearer ${token}`)
-      .set('Authorization', 'Bearer ' + token)
+    await supertest(BASE_URL).delete('/sessions').set('Authorization', `Bearer ${token}`)
   })
   group.beforeEach(async () => {
     await Database.beginGlobalTransaction()
