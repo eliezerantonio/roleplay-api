@@ -3,7 +3,6 @@ import Group from 'App/Models/Group'
 import User from 'App/Models/User'
 import { GroupFactory, UserFactory } from 'Database/factories'
 import test from 'japa'
-import { Assert } from 'japa/build/src/Assert'
 import supertest from 'supertest'
 
 const BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`
@@ -66,6 +65,7 @@ test.group('Group', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .patch(`/groups/${group.id}`)
+      .set('Authorization', `Bearer ${token}`)
       .send(payload)
       .expect(200)
 
@@ -78,7 +78,11 @@ test.group('Group', (group) => {
   })
 
   test('it should return 404 when providing an unexting group for update', async (assert) => {
-    const response = await supertest(BASE_URL).patch('/groups/1').send({}).expect(404)
+    const response = await supertest(BASE_URL)
+      .patch('/groups/1')
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+      .expect(404)
 
     assert.equal(response.body.code, 'BAD_REQUEST')
     assert.equal(response.body.status, 404)
@@ -93,6 +97,7 @@ test.group('Group', (group) => {
 
     const response = await supertest(BASE_URL)
       .post('/sessions')
+      .set('Authorization', `Bearer ${token}`)
       .send({ email: newUser.email, password: plainPassword })
 
     const playerToken = response.body.token.token
@@ -106,7 +111,10 @@ test.group('Group', (group) => {
       .post(`/groups/${group.id}/requests/${body.groupRequest.id}/accept`)
       .set('Authorization', `Bearer ${token}`)
 
-    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${newUser.id}`).expect(200)
+    await supertest(BASE_URL)
+      .delete(`/groups/${group.id}/players/${newUser.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200)
 
     await group.load('players')
 
@@ -130,7 +138,10 @@ test.group('Group', (group) => {
 
     const group = body.group
 
-    await supertest(BASE_URL).delete(`/groups/${group.id}/players/${user.id}`).expect(400)
+    await supertest(BASE_URL)
+      .delete(`/groups/${group.id}/players/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(400)
 
     const groupModel = await Group.findOrFail(group.id)
 
@@ -156,7 +167,11 @@ test.group('Group', (group) => {
 
     const group = body.group
 
-    await supertest(BASE_URL).delete(`/groups/${group.id}`).send({}).expect(200)
+    await supertest(BASE_URL)
+      .delete(`/groups/${group.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+      .expect(200)
 
     const emptyGroup = await Database.query().from('groups').where('id', group.id)
 
@@ -168,7 +183,11 @@ test.group('Group', (group) => {
   })
 
   test('it sould return 40 when providing an unexisting group for deletion', async (assert) => {
-    const { body } = await supertest(BASE_URL).delete('/groups/1').send({}).expect(404)
+    const { body } = await supertest(BASE_URL)
+      .delete('/groups/1')
+      .set('Authorization', `Bearer ${token}`)
+      .send({})
+      .expect(404)
 
     assert.equal(body.code, 'BAD_REQUEST')
     assert.equal(body.status, 404)
@@ -180,6 +199,7 @@ test.group('Group', (group) => {
 
     const { body } = await supertest(BASE_URL)
       .post('/sessions')
+      .set('Authorization', `Bearer ${token}`)
       .send({ email: newUser.email, password: plainPassword })
       .expect(201)
 
@@ -190,6 +210,7 @@ test.group('Group', (group) => {
   group.after(async () => {
     await supertest(BASE_URL)
       .delete('/sessions')
+      .set('Authorization', `Bearer ${token}`)
       .set('Authorization', 'Bearer ' + token)
   })
   group.beforeEach(async () => {
